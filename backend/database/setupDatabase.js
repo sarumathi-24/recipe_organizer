@@ -24,9 +24,18 @@ CREATE TABLE IF NOT EXISTS recipes (
   cooking_time INTEGER NOT NULL,
   category VARCHAR(80),
   image_url TEXT,
+  image_data BYTEA,
+  image_mime_type VARCHAR(120),
+  image_file_name VARCHAR(255),
+  image_size INTEGER,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE recipes ADD COLUMN IF NOT EXISTS image_data BYTEA;
+ALTER TABLE recipes ADD COLUMN IF NOT EXISTS image_mime_type VARCHAR(120);
+ALTER TABLE recipes ADD COLUMN IF NOT EXISTS image_file_name VARCHAR(255);
+ALTER TABLE recipes ADD COLUMN IF NOT EXISTS image_size INTEGER;
 
 CREATE INDEX IF NOT EXISTS recipes_user_id_idx ON recipes(user_id);
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { apiRequest, getImageUrl } from "../api/api";
+import { apiRequest, getImageUrl, isPreviewableImage } from "../api/api";
 import { useAuth } from "../context/AuthContext";
 
 function splitRecipeText(text) {
@@ -50,6 +50,7 @@ export default function RecipeDetails() {
   const category = recipe.category || "General";
   const ingredients = splitRecipeText(recipe.ingredients);
   const instructions = splitRecipeText(recipe.instruction);
+  const imageSource = isPreviewableImage(recipe) ? getImageUrl(recipe.image_url) : getImageUrl("");
 
   return (
     <article className="recipe-detail-page">
@@ -70,9 +71,14 @@ export default function RecipeDetails() {
 
         <div className="recipe-detail-image">
           <img
-            src={getImageUrl(recipe.image_url)}
+            src={imageSource}
             alt={recipe.title}
           />
+          {recipe.image_url && !isPreviewableImage(recipe) && (
+            <a className="button secondary" href={getImageUrl(recipe.image_url)} target="_blank" rel="noreferrer">
+              Open saved document
+            </a>
+          )}
         </div>
       </section>
 

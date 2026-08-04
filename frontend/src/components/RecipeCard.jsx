@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { getImageUrl } from "../api/api";
+import { getImageUrl, isPreviewableImage } from "../api/api";
 
 export default function RecipeCard({
   recipe,
@@ -11,11 +11,13 @@ export default function RecipeCard({
   savedActionLabel = "Saved",
   onToggleSave
 }) {
+  const imageSource = isPreviewableImage(recipe) ? getImageUrl(recipe.image_url) : getImageUrl("");
+
   return (
     <article className="recipe-card">
       <div className="recipe-card-media">
         <img
-          src={getImageUrl(recipe.image_url)}
+          src={imageSource}
           alt={recipe.title}
           loading="lazy"
         />

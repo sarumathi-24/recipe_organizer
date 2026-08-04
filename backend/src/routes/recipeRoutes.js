@@ -7,6 +7,7 @@ const {
   getSavedRecipeIds,
   getSavedRecipes,
   getRecipeById,
+  getRecipeImage,
   saveRecipe,
   unsaveRecipe,
   createRecipe,
@@ -20,6 +21,7 @@ router.get("/", getAllRecipes);
 router.get("/mine", authMiddleware, getMyRecipes);
 router.get("/saved", authMiddleware, getSavedRecipeIds);
 router.get("/saved/list", authMiddleware, getSavedRecipes);
+router.get("/:id/image", getRecipeImage);
 router.get("/:id", getRecipeById);
 router.post("/", authMiddleware, upload.single("image"), createRecipe);
 router.post("/:id/save", authMiddleware, saveRecipe);

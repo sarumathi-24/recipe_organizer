@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getImageUrl } from "../api/api";
+import { getImageUrl, isPreviewableImage } from "../api/api";
 
 const emptyRecipe = {
   title: "",
@@ -11,6 +11,8 @@ const emptyRecipe = {
 };
 
 const categoryOptions = ["Breakfast", "Lunch", "Dinner", "Snacks", "Juices", "Dessert"];
+const oneMb = 1024 * 1024;
+const fiveMb = 5 * oneMb;
 
 export default function RecipeForm({ initialRecipe = emptyRecipe, buttonText, onSubmit }) {
   const [form, setForm] = useState({ ...emptyRecipe, ...initialRecipe });
@@ -36,7 +38,17 @@ export default function RecipeForm({ initialRecipe = emptyRecipe, buttonText, on
   }
 
   function handleFileChange(event) {
-    setImageFile(event.target.files[0] || null);
+    const selectedFile = event.target.files[0] || null;
+
+    if (selectedFile && (selectedFile.size < oneMb || selectedFile.size > fiveMb)) {
+      setImageFile(null);
+      setError("Upload a picture or document from 1 MB to 5 MB.");
+      event.target.value = "";
+      return;
+    }
+
+    setError("");
+    setImageFile(selectedFile);
   }
 
   async function handleSubmit(event) {
@@ -109,13 +121,23 @@ export default function RecipeForm({ initialRecipe = emptyRecipe, buttonText, on
         </label>
       </div>
       <label className="image-upload-field">
-        <span>Recipe Image</span>
-        <input name="image" type="file" accept="image/*" onChange={handleFileChange} />
+        <span>Recipe Picture or Document</span>
+        <input
+          name="image"
+          type="file"
+          accept="image/*,.pdf,.doc,.docx"
+          onChange={handleFileChange}
+        />
       </label>
+      <p className="muted">Choose a picture, PDF, or Word document from 1 MB to 5 MB.</p>
       {initialRecipe.image_url && (
         <div className="current-image-note">
-          <img src={getImageUrl(initialRecipe.image_url)} alt={`${form.title || "Recipe"} current`} />
-          <p>Current picture will stay the same unless you choose a new photo.</p>
+          {isPreviewableImage(initialRecipe) ? (
+            <img src={getImageUrl(initialRecipe.image_url)} alt={`${form.title || "Recipe"} current`} />
+          ) : (
+            <p>{initialRecipe.image_file_name || "Current document"} is saved in the database.</p>
+          )}
+          <p>Current file will stay the same unless you choose a new one.</p>
         </div>
       )}
       <button className="button" disabled={saving}>{saving ? "Saving..." : buttonText}</button>

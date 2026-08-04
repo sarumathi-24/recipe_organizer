@@ -37,3 +37,7 @@ export function getImageUrl(imagePath) {
 
   return `${SERVER_URL}${imagePath}`;
 }
+
+export function isPreviewableImage(recipe) {
+  return !recipe?.image_mime_type || recipe.image_mime_type.startsWith("image/");
+}

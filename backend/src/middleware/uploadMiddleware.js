@@ -1,35 +1,29 @@
-const fs = require("fs");
-const path = require("path");
 const multer = require("multer");
 
-const uploadFolder = path.join(__dirname, "../../uploads");
+const ONE_MB = 1024 * 1024;
+const FIVE_MB = 5 * ONE_MB;
 
-if (!fs.existsSync(uploadFolder)) {
-  fs.mkdirSync(uploadFolder, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadFolder);
-  },
-  filename: (req, file, cb) => {
-    const safeName = file.originalname.replace(/\s+/g, "-").toLowerCase();
-    cb(null, `${Date.now()}-${safeName}`);
-  }
-});
+const allowedMimeTypes = new Set([
+  "application/msword",
+  "application/pdf",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+]);
 
 function fileFilter(req, file, cb) {
-  if (file.mimetype.startsWith("image/")) {
+  if (file.mimetype.startsWith("image/") || allowedMimeTypes.has(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error("Only image files are allowed."));
+    cb(new Error("Only picture, PDF, or Word document files are allowed."));
   }
 }
 
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   fileFilter,
-  limits: { fileSize: 2 * 1024 * 1024 }
+  limits: { fileSize: FIVE_MB }
 });
+
+upload.minFileSize = ONE_MB;
+upload.maxFileSize = FIVE_MB;
 
 module.exports = upload;
