@@ -120,6 +120,84 @@ npm.cmd install
 npm.cmd run dev
 ```
 
+## Deploy On Render
+
+Deploy this project as three Render resources:
+
+1. PostgreSQL database
+2. Backend web service
+3. Frontend static site
+
+### 1. Create PostgreSQL
+
+In Render, click **New +** -> **PostgreSQL**.
+
+Use any name, for example:
+
+```text
+recipe-organizer-db
+```
+
+After it is created, copy the **Internal Database URL**. Use this as the backend `DATABASE_URL`.
+
+### 2. Deploy Backend
+
+In Render, click **New +** -> **Web Service** and connect your GitHub repository.
+
+Use these settings:
+
+```text
+Root Directory: backend
+Runtime: Node
+Build Command: npm install
+Start Command: npm run render:start
+```
+
+Add these backend environment variables:
+
+```env
+DATABASE_URL=paste_render_internal_database_url_here
+JWT_SECRET=change_this_to_a_long_random_secret
+CLIENT_URL=https://your-frontend-site.onrender.com
+ADMIN_NAME=Admin
+ADMIN_EMAIL=admin@example.com
+ADMIN_PASSWORD=change_this_password
+```
+
+If the frontend has not been deployed yet, you can add `CLIENT_URL` after the frontend URL is created, then redeploy the backend.
+
+The `render:start` script runs database migration first, then starts the API. This creates the recipe tables and the database file columns used for uploaded pictures/documents.
+
+### 3. Deploy Frontend
+
+In Render, click **New +** -> **Static Site** and connect the same GitHub repository.
+
+Use these settings:
+
+```text
+Root Directory: frontend
+Build Command: npm install && npm run build
+Publish Directory: dist
+```
+
+Add this frontend environment variable:
+
+```env
+VITE_API_URL=https://your-backend-service.onrender.com/api
+```
+
+After the frontend deploy finishes, copy its URL and update the backend `CLIENT_URL` environment variable with that exact frontend URL.
+
+### 4. Final Check
+
+Open the frontend Render URL and test:
+
+1. Signup or login
+2. Add a recipe
+3. Upload a picture, PDF, or Word document between 1 MB and 5 MB
+4. Open the recipe details page
+5. Edit and delete your own recipe
+
 ## API Routes
 
 Auth:

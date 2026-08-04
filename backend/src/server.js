@@ -9,8 +9,21 @@ const recipeRoutes = require("./routes/recipeRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:5174"
+].filter(Boolean);
 
-app.use(cors({ origin: process.env.CLIENT_URL || "https://recipe-organizer-bd.onrender.com" }));
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Not allowed by CORS"));
+  }
+}));
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 

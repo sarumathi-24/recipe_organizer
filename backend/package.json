@@ -7,6 +7,7 @@
     "db:setup": "node database/setupDatabase.js",
     "db:migrate": "node database/migrateDatabase.js",
     "dev": "nodemon src/server.js",
+    "render:start": "npm run db:migrate && npm start",
     "start": "node src/server.js"
   },
   "dependencies": {
