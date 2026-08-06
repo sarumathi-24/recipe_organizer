@@ -50,7 +50,20 @@ export default function RecipeDetails() {
   const category = recipe.category || "General";
   const ingredients = splitRecipeText(recipe.ingredients);
   const instructions = splitRecipeText(recipe.instruction);
-  const imageSource = isPreviewableImage(recipe) ? getImageUrl(recipe.image_url) : getImageUrl("");
+  const galleryImages = recipe.images?.length > 0
+    ? recipe.images
+    : recipe.image_url
+      ? [{
+          id: "legacy",
+          url: recipe.image_url,
+          mime_type: recipe.image_mime_type,
+          file_name: recipe.image_file_name
+        }]
+      : [];
+  const previewableImages = galleryImages.filter(isPreviewableImage);
+  const documentFiles = galleryImages.filter((image) => !isPreviewableImage(image));
+  const coverImage = previewableImages[0];
+  const imageSource = coverImage ? getImageUrl(coverImage.url) : getImageUrl("");
 
   return (
     <article className="recipe-detail-page">
@@ -74,10 +87,26 @@ export default function RecipeDetails() {
             src={imageSource}
             alt={recipe.title}
           />
-          {recipe.image_url && !isPreviewableImage(recipe) && (
-            <a className="button secondary" href={getImageUrl(recipe.image_url)} target="_blank" rel="noreferrer">
-              Open saved document
-            </a>
+          {previewableImages.length > 1 && (
+            <div className="recipe-photo-strip" aria-label="Recipe photos">
+              {previewableImages.map((image) => (
+                <img
+                  key={image.id}
+                  src={getImageUrl(image.url)}
+                  alt={`${recipe.title} photo`}
+                  loading="lazy"
+                />
+              ))}
+            </div>
+          )}
+          {documentFiles.length > 0 && (
+            <div className="recipe-document-links">
+              {documentFiles.map((image) => (
+                <a key={image.id} className="button secondary" href={getImageUrl(image.url)} target="_blank" rel="noreferrer">
+                  {image.file_name || "Open saved document"}
+                </a>
+              ))}
+            </div>
           )}
         </div>
       </section>

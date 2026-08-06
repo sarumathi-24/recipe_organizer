@@ -229,7 +229,7 @@ export default function Recipes() {
           <p className="recipes-kicker">Share a dish</p>
           <h2>Add your own recipe to the collection</h2>
           <p>
-            Upload a photo, write ingredients and instructions, and keep your homemade dishes in your account.
+            Upload photos, write ingredients and instructions, and keep your homemade dishes in your account.
           </p>
         </div>
         <div className="contribute-actions">

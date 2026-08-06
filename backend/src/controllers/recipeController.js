@@ -1,5 +1,4 @@
 const pool = require("../config/db");
-const upload = require("../middleware/uploadMiddleware");
 
 const ALLOWED_CATEGORIES = ["Breakfast", "Lunch", "Dinner", "Snacks", "Juices", "Dessert"];
 
@@ -12,44 +11,97 @@ const recipeFields = `
   recipes.instruction,
   recipes.cooking_time,
   recipes.category,
-  CASE
-    WHEN recipes.image_data IS NOT NULL THEN CONCAT('/api/recipes/', recipes.id, '/image')
-    ELSE recipes.image_url
-  END AS image_url,
-  recipes.image_mime_type,
-  recipes.image_file_name,
-  recipes.image_size,
+  COALESCE(
+    (SELECT CONCAT('/api/recipes/', recipes.id, '/images/', recipe_images.id)
+     FROM recipe_images
+     WHERE recipe_images.recipe_id = recipes.id
+     ORDER BY recipe_images.position, recipe_images.id
+     LIMIT 1),
+    CASE
+      WHEN recipes.image_data IS NOT NULL THEN CONCAT('/api/recipes/', recipes.id, '/image')
+      ELSE recipes.image_url
+    END
+  ) AS image_url,
+  COALESCE(
+    (SELECT recipe_images.mime_type
+     FROM recipe_images
+     WHERE recipe_images.recipe_id = recipes.id
+     ORDER BY recipe_images.position, recipe_images.id
+     LIMIT 1),
+    recipes.image_mime_type
+  ) AS image_mime_type,
+  COALESCE(
+    (SELECT recipe_images.file_name
+     FROM recipe_images
+     WHERE recipe_images.recipe_id = recipes.id
+     ORDER BY recipe_images.position, recipe_images.id
+     LIMIT 1),
+    recipes.image_file_name
+  ) AS image_file_name,
+  COALESCE(
+    (SELECT recipe_images.size
+     FROM recipe_images
+     WHERE recipe_images.recipe_id = recipes.id
+     ORDER BY recipe_images.position, recipe_images.id
+     LIMIT 1),
+    recipes.image_size
+  ) AS image_size,
+  COALESCE(
+    (SELECT json_agg(
+       json_build_object(
+         'id', recipe_images.id,
+         'url', CONCAT('/api/recipes/', recipes.id, '/images/', recipe_images.id),
+         'mime_type', recipe_images.mime_type,
+         'file_name', recipe_images.file_name,
+         'size', recipe_images.size
+       )
+       ORDER BY recipe_images.position, recipe_images.id
+     )
+     FROM recipe_images
+     WHERE recipe_images.recipe_id = recipes.id),
+    '[]'::json
+  ) AS images,
   recipes.created_at,
   recipes.updated_at
 `;
 
-function getUploadedFile(req) {
-  if (!req.file) return null;
-
-  return {
-    data: req.file.buffer,
-    mimeType: req.file.mimetype,
-    fileName: req.file.originalname,
-    size: req.file.size
-  };
-}
-
-function validateUploadedFile(req) {
-  if (!req.file) return null;
-
-  if (req.file.size < upload.minFileSize) {
-    return "Uploaded picture or document must be at least 1 MB.";
+function getUploadedFiles(req) {
+  if (req.files && !Array.isArray(req.files)) {
+    return [...(req.files.image || []), ...(req.files.images || [])];
   }
 
-  if (req.file.size > upload.maxFileSize) {
-    return "Uploaded picture or document cannot be more than 5 MB.";
+  if (Array.isArray(req.files)) {
+    return req.files;
   }
 
-  return null;
+  if (req.file) {
+    return [req.file];
+  }
+
+  return [];
 }
 
 function getSafeHeaderFileName(fileName) {
   return (fileName || "recipe-file").replace(/["\r\n]/g, "");
+}
+
+async function saveRecipeFiles(client, recipeId, files) {
+  if (files.length === 0) return;
+
+  const positionResult = await client.query(
+    "SELECT COALESCE(MAX(position), -1) + 1 AS next_position FROM recipe_images WHERE recipe_id = $1",
+    [recipeId]
+  );
+  const nextPosition = Number(positionResult.rows[0].next_position);
+
+  for (const [index, file] of files.entries()) {
+    await client.query(
+      `INSERT INTO recipe_images
+       (recipe_id, image_data, mime_type, file_name, size, position)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [recipeId, file.buffer, file.mimetype, file.originalname, file.size, nextPosition + index]
+    );
+  }
 }
 
 function validateRecipe(data) {
@@ -199,6 +251,31 @@ async function getRecipeImage(req, res) {
   }
 }
 
+async function getRecipeGalleryImage(req, res) {
+  try {
+    const result = await pool.query(
+      `SELECT image_data, mime_type, file_name, size
+       FROM recipe_images
+       WHERE recipe_id = $1 AND id = $2`,
+      [req.params.id, req.params.imageId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Recipe image not found." });
+    }
+
+    const image = result.rows[0];
+
+    res.setHeader("Content-Type", image.mime_type || "application/octet-stream");
+    res.setHeader("Content-Length", image.size);
+    res.setHeader("Content-Disposition", `inline; filename="${getSafeHeaderFileName(image.file_name)}"`);
+
+    return res.send(image.image_data);
+  } catch (error) {
+    return res.status(500).json({ message: "Could not load recipe image." });
+  }
+}
+
 async function saveRecipe(req, res) {
   try {
     const recipe = await pool.query(
@@ -243,12 +320,6 @@ async function createRecipe(req, res) {
     return res.status(400).json({ message: errorMessage });
   }
 
-  const fileError = validateUploadedFile(req);
-
-  if (fileError) {
-    return res.status(400).json({ message: fileError });
-  }
-
   const {
     title,
     description,
@@ -258,19 +329,17 @@ async function createRecipe(req, res) {
     category,
   } = req.body;
 
-  const uploadedFile = getUploadedFile(req);
+  const uploadedFiles = getUploadedFiles(req);
+  const client = await pool.connect();
 
   try {
-    const result = await pool.query(
+    await client.query("BEGIN");
+
+    const result = await client.query(
       `INSERT INTO recipes
-       (user_id, title, description, ingredients, instruction, cooking_time, category, image_data, image_mime_type, image_file_name, image_size)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-       RETURNING id, user_id, title, description, ingredients, instruction, cooking_time, category,
-         CASE
-           WHEN image_data IS NOT NULL THEN CONCAT('/api/recipes/', id, '/image')
-           ELSE image_url
-         END AS image_url,
-         image_mime_type, image_file_name, image_size, created_at, updated_at`,
+       (user_id, title, description, ingredients, instruction, cooking_time, category)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id`,
       [
         req.user.id,
         title,
@@ -278,17 +347,29 @@ async function createRecipe(req, res) {
         ingredients,
         instruction,
         Number(cooking_time),
-        category || "",
-        uploadedFile?.data || null,
-        uploadedFile?.mimeType || null,
-        uploadedFile?.fileName || null,
-        uploadedFile?.size || null
+        category || ""
       ]
     );
 
-    return res.status(201).json(result.rows[0]);
+    const recipeId = result.rows[0].id;
+    await saveRecipeFiles(client, recipeId, uploadedFiles);
+
+    const recipeResult = await client.query(
+      `SELECT ${recipeFields}, users.name AS author_name
+       FROM recipes
+       JOIN users ON users.id = recipes.user_id
+       WHERE recipes.id = $1`,
+      [recipeId]
+    );
+
+    await client.query("COMMIT");
+
+    return res.status(201).json(recipeResult.rows[0]);
   } catch (error) {
+    await client.query("ROLLBACK");
     return res.status(500).json({ message: "Could not create recipe." });
+  } finally {
+    client.release();
   }
 }
 
@@ -299,12 +380,6 @@ async function updateRecipe(req, res) {
     return res.status(400).json({ message: errorMessage });
   }
 
-  const fileError = validateUploadedFile(req);
-
-  if (fileError) {
-    return res.status(400).json({ message: fileError });
-  }
-
   const {
     title,
     description,
@@ -314,19 +389,24 @@ async function updateRecipe(req, res) {
     category,
   } = req.body;
 
+  const client = await pool.connect();
+
   try {
-    const currentRecipe = await pool.query(
+    await client.query("BEGIN");
+
+    const currentRecipe = await client.query(
       "SELECT id FROM recipes WHERE id = $1 AND (user_id = $2 OR $3 = true)",
       [req.params.id, req.user.id, Boolean(req.user.is_admin)]
     );
 
     if (currentRecipe.rows.length === 0) {
+      await client.query("ROLLBACK");
       return res.status(403).json({ message: "Only the recipe owner or admin can edit this recipe." });
     }
 
-    const uploadedFile = getUploadedFile(req);
+    const uploadedFiles = getUploadedFiles(req);
 
-    const result = await pool.query(
+    const result = await client.query(
       `UPDATE recipes
        SET title = $1,
            description = $2,
@@ -334,19 +414,9 @@ async function updateRecipe(req, res) {
            instruction = $4,
            cooking_time = $5,
            category = $6,
-           image_data = COALESCE($7, image_data),
-           image_mime_type = COALESCE($8, image_mime_type),
-           image_file_name = COALESCE($9, image_file_name),
-           image_size = COALESCE($10, image_size),
-           image_url = CASE WHEN $7::bytea IS NOT NULL THEN NULL ELSE image_url END,
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = $11 AND (user_id = $12 OR $13 = true)
-       RETURNING id, user_id, title, description, ingredients, instruction, cooking_time, category,
-         CASE
-           WHEN image_data IS NOT NULL THEN CONCAT('/api/recipes/', id, '/image')
-           ELSE image_url
-         END AS image_url,
-         image_mime_type, image_file_name, image_size, created_at, updated_at`,
+       WHERE id = $7 AND (user_id = $8 OR $9 = true)
+       RETURNING id`,
       [
         title,
         description || "",
@@ -354,10 +424,6 @@ async function updateRecipe(req, res) {
         instruction,
         Number(cooking_time),
         category || "",
-        uploadedFile?.data || null,
-        uploadedFile?.mimeType || null,
-        uploadedFile?.fileName || null,
-        uploadedFile?.size || null,
         req.params.id,
         req.user.id,
         Boolean(req.user.is_admin)
@@ -365,12 +431,28 @@ async function updateRecipe(req, res) {
     );
 
     if (result.rows.length === 0) {
+      await client.query("ROLLBACK");
       return res.status(403).json({ message: "Only the recipe owner or admin can edit this recipe." });
     }
 
-    return res.json(result.rows[0]);
+    await saveRecipeFiles(client, req.params.id, uploadedFiles);
+
+    const recipeResult = await client.query(
+      `SELECT ${recipeFields}, users.name AS author_name
+       FROM recipes
+       JOIN users ON users.id = recipes.user_id
+       WHERE recipes.id = $1`,
+      [req.params.id]
+    );
+
+    await client.query("COMMIT");
+
+    return res.json(recipeResult.rows[0]);
   } catch (error) {
+    await client.query("ROLLBACK");
     return res.status(500).json({ message: "Could not update recipe." });
+  } finally {
+    client.release();
   }
 }
 
@@ -398,6 +480,7 @@ module.exports = {
   getSavedRecipes,
   getRecipeById,
   getRecipeImage,
+  getRecipeGalleryImage,
   saveRecipe,
   unsaveRecipe,
   createRecipe,

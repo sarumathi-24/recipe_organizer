@@ -8,6 +8,7 @@ const {
   getSavedRecipes,
   getRecipeById,
   getRecipeImage,
+  getRecipeGalleryImage,
   saveRecipe,
   unsaveRecipe,
   createRecipe,
@@ -22,10 +23,11 @@ router.get("/mine", authMiddleware, getMyRecipes);
 router.get("/saved", authMiddleware, getSavedRecipeIds);
 router.get("/saved/list", authMiddleware, getSavedRecipes);
 router.get("/:id/image", getRecipeImage);
+router.get("/:id/images/:imageId", getRecipeGalleryImage);
 router.get("/:id", getRecipeById);
-router.post("/", authMiddleware, upload.single("image"), createRecipe);
+router.post("/", authMiddleware, upload.fields([{ name: "image" }, { name: "images" }]), createRecipe);
 router.post("/:id/save", authMiddleware, saveRecipe);
-router.put("/:id", authMiddleware, upload.single("image"), updateRecipe);
+router.put("/:id", authMiddleware, upload.fields([{ name: "image" }, { name: "images" }]), updateRecipe);
 router.delete("/:id/save", authMiddleware, unsaveRecipe);
 router.delete("/:id", authMiddleware, deleteRecipe);
 

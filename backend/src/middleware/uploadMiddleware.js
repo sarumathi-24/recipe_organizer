@@ -1,8 +1,5 @@
 const multer = require("multer");
 
-const ONE_MB = 1024 * 1024;
-const FIVE_MB = 5 * ONE_MB;
-
 const allowedMimeTypes = new Set([
   "application/msword",
   "application/pdf",
@@ -19,11 +16,7 @@ function fileFilter(req, file, cb) {
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  fileFilter,
-  limits: { fileSize: FIVE_MB }
+  fileFilter
 });
-
-upload.minFileSize = ONE_MB;
-upload.maxFileSize = FIVE_MB;
 
 module.exports = upload;

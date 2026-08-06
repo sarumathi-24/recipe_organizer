@@ -1300,7 +1300,7 @@ select:focus-visible {
 }
 
 .current-image-note {
-  align-items: center;
+  align-items: flex-start;
   background: rgba(255, 253, 248, 0.72);
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -1317,6 +1317,24 @@ select:focus-visible {
   height: 64px;
   object-fit: cover;
   width: 64px;
+}
+
+.current-image-gallery {
+  display: flex;
+  flex: 0 1 auto;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 260px;
+}
+
+.current-image-gallery span {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: #463d35;
+  font-size: 0.86rem;
+  line-height: 1.35;
+  padding: 8px;
 }
 
 .current-image-note p {
@@ -1442,6 +1460,8 @@ select:focus-visible {
 .recipe-detail-image {
   align-items: center;
   display: flex;
+  flex-direction: column;
+  gap: 14px;
   justify-content: flex-end;
   min-height: 0;
   position: relative;
@@ -1456,6 +1476,35 @@ select:focus-visible {
   object-fit: cover;
   position: relative;
   width: min(100%, 680px);
+}
+
+.recipe-photo-strip {
+  display: grid;
+  gap: 10px;
+  grid-auto-columns: minmax(96px, 132px);
+  grid-auto-flow: column;
+  max-width: min(100%, 680px);
+  overflow-x: auto;
+  padding: 2px 0 8px;
+  scrollbar-width: thin;
+}
+
+.recipe-photo-strip img {
+  aspect-ratio: 1;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+  height: auto;
+  object-fit: cover;
+  width: 100%;
+}
+
+.recipe-document-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+  max-width: min(100%, 680px);
 }
 
 .recipe-detail-content {
@@ -2065,6 +2114,16 @@ select:focus-visible {
   .recipe-detail-image img {
     height: 320px;
     position: relative;
+    width: 100%;
+  }
+
+  .recipe-photo-strip {
+    grid-auto-columns: 92px;
+    width: 100%;
+  }
+
+  .recipe-photo-strip img {
+    height: auto;
     width: 100%;
   }
 

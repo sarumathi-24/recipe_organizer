@@ -36,7 +36,7 @@ app.use("/api/recipes", recipeRoutes);
 
 app.use((error, req, res, next) => {
   if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
-    return res.status(400).json({ message: "Uploaded picture or document cannot be more than 5 MB." });
+    return res.status(400).json({ message: "Uploaded picture or document is too large." });
   }
 
   if (error.message === "Only picture, PDF, or Word document files are allowed.") {

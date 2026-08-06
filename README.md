@@ -194,7 +194,7 @@ Open the frontend Render URL and test:
 
 1. Signup or login
 2. Add a recipe
-3. Upload a picture, PDF, or Word document between 1 MB and 5 MB
+3. Upload one or more pictures, PDFs, or Word documents
 4. Open the recipe details page
 5. Edit and delete your own recipe
 

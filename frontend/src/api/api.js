@@ -39,5 +39,7 @@ export function getImageUrl(imagePath) {
 }
 
 export function isPreviewableImage(recipe) {
-  return !recipe?.image_mime_type || recipe.image_mime_type.startsWith("image/");
+  const mimeType = recipe?.image_mime_type || recipe?.mime_type;
+
+  return !mimeType || mimeType.startsWith("image/");
 }

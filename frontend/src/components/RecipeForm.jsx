@@ -11,12 +11,10 @@ const emptyRecipe = {
 };
 
 const categoryOptions = ["Breakfast", "Lunch", "Dinner", "Snacks", "Juices", "Dessert"];
-const oneMb = 1024 * 1024;
-const fiveMb = 5 * oneMb;
 
 export default function RecipeForm({ initialRecipe = emptyRecipe, buttonText, onSubmit }) {
   const [form, setForm] = useState({ ...emptyRecipe, ...initialRecipe });
-  const [imageFile, setImageFile] = useState(null);
+  const [imageFiles, setImageFiles] = useState([]);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -38,17 +36,8 @@ export default function RecipeForm({ initialRecipe = emptyRecipe, buttonText, on
   }
 
   function handleFileChange(event) {
-    const selectedFile = event.target.files[0] || null;
-
-    if (selectedFile && (selectedFile.size < oneMb || selectedFile.size > fiveMb)) {
-      setImageFile(null);
-      setError("Upload a picture or document from 1 MB to 5 MB.");
-      event.target.value = "";
-      return;
-    }
-
     setError("");
-    setImageFile(selectedFile);
+    setImageFiles(Array.from(event.target.files || []));
   }
 
   async function handleSubmit(event) {
@@ -66,8 +55,10 @@ export default function RecipeForm({ initialRecipe = emptyRecipe, buttonText, on
       formData.append("cooking_time", form.cooking_time);
       formData.append("category", form.category);
 
-      if (imageFile) {
-        formData.append("image", imageFile);
+      if (imageFiles.length > 0) {
+        imageFiles.forEach((imageFile) => {
+          formData.append("images", imageFile);
+        });
       }
 
       await onSubmit(formData);
@@ -121,23 +112,38 @@ export default function RecipeForm({ initialRecipe = emptyRecipe, buttonText, on
         </label>
       </div>
       <label className="image-upload-field">
-        <span>Recipe Picture or Document</span>
+        <span>Recipe Photos or Documents</span>
         <input
-          name="image"
+          name="images"
           type="file"
           accept="image/*,.pdf,.doc,.docx"
+          multiple
           onChange={handleFileChange}
         />
       </label>
-      <p className="muted">Choose a picture, PDF, or Word document from 1 MB to 5 MB.</p>
-      {initialRecipe.image_url && (
+      <p className="muted">
+        {imageFiles.length > 0
+          ? `${imageFiles.length} file${imageFiles.length === 1 ? "" : "s"} selected.`
+          : "Choose as many pictures, PDFs, or Word documents as you need."}
+      </p>
+      {(initialRecipe.images?.length > 0 || initialRecipe.image_url) && (
         <div className="current-image-note">
-          {isPreviewableImage(initialRecipe) ? (
+          {initialRecipe.images?.length > 0 ? (
+            <div className="current-image-gallery">
+              {initialRecipe.images.slice(0, 6).map((image) => (
+                isPreviewableImage(image) ? (
+                  <img key={image.id} src={getImageUrl(image.url)} alt={`${form.title || "Recipe"} saved`} />
+                ) : (
+                  <span key={image.id}>{image.file_name || "Saved document"}</span>
+                )
+              ))}
+            </div>
+          ) : isPreviewableImage(initialRecipe) ? (
             <img src={getImageUrl(initialRecipe.image_url)} alt={`${form.title || "Recipe"} current`} />
           ) : (
             <p>{initialRecipe.image_file_name || "Current document"} is saved in the database.</p>
           )}
-          <p>Current file will stay the same unless you choose a new one.</p>
+          <p>Current files will stay saved. New uploads will be added to this recipe.</p>
         </div>
       )}
       <button className="button" disabled={saving}>{saving ? "Saving..." : buttonText}</button>

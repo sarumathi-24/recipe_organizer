@@ -48,7 +48,7 @@ export default function EditRecipe() {
       <div className="page-title">
         <p className="eyebrow">Update recipe</p>
         <h1>Edit Recipe</h1>
-        <p className="muted">Change the recipe details, or leave the image empty to keep the current picture.</p>
+        <p className="muted">Change the recipe details, or leave uploads empty to keep the current files.</p>
       </div>
       <RecipeForm initialRecipe={recipe} buttonText="Save Changes" onSubmit={handleUpdate} />
     </section>

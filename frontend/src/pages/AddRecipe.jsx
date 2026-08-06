@@ -23,7 +23,7 @@ export default function AddRecipe() {
         <p className="muted">
           {user?.is_admin
             ? "Add a recipe as the admin account. It will appear in the public recipe list and admin recipe management."
-            : "Save the ingredients, cooking steps, time, category, and a photo for a recipe you want to keep."}
+            : "Save the ingredients, cooking steps, time, category, and photos for a recipe you want to keep."}
         </p>
       </div>
       <RecipeForm buttonText="Create Recipe" onSubmit={handleCreate} />

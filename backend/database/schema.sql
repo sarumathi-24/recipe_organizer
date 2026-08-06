@@ -38,6 +38,19 @@ ALTER TABLE recipes ADD COLUMN IF NOT EXISTS image_size INTEGER;
 
 CREATE INDEX IF NOT EXISTS recipes_user_id_idx ON recipes(user_id);
 
+CREATE TABLE IF NOT EXISTS recipe_images (
+  id SERIAL PRIMARY KEY,
+  recipe_id INTEGER NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
+  image_data BYTEA NOT NULL,
+  mime_type VARCHAR(120),
+  file_name VARCHAR(255),
+  size INTEGER,
+  position INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS recipe_images_recipe_id_idx ON recipe_images(recipe_id);
+
 CREATE TABLE IF NOT EXISTS saved_recipes (
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   recipe_id INTEGER NOT NULL REFERENCES recipes(id) ON DELETE CASCADE,
