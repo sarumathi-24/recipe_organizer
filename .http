@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:5001
 @apiUrl = {{baseUrl}}/api
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6InNhcnUgZW1lc2giLCJlbWFpbCI6InNhcnVAZ21haWwuY29tIiwiaXNfYWRtaW4iOmZhbHNlLCJpYXQiOjE3ODU5MjgxMjUsImV4cCI6MTc4NjUzMjkyNX0.sWIewL_88xXtR_fVPzubk6f81d6Q81C9mbDXGEiTpak
+@token = paste-jwt-token-here
 @recipeId = 1
 
 ### API health check
