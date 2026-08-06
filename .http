@@ -1,0 +1,200 @@
+@baseUrl = http://localhost:5001
+@apiUrl = {{baseUrl}}/api
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6InNhcnUgZW1lc2giLCJlbWFpbCI6InNhcnVAZ21haWwuY29tIiwiaXNfYWRtaW4iOmZhbHNlLCJpYXQiOjE3ODU5MjgxMjUsImV4cCI6MTc4NjUzMjkyNX0.sWIewL_88xXtR_fVPzubk6f81d6Q81C9mbDXGEiTpak
+@recipeId = 1
+
+### API health check
+GET {{baseUrl}}/
+
+### Sign up
+POST {{apiUrl}}/auth/signup
+Content-Type: application/json
+
+{
+  "name": "saru emesh",
+  "email": "saru@gmail.com",
+  "password": "saru123"
+}
+
+### Login
+POST {{apiUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "saru@gmail.com",
+  "password": "saru123"
+}
+
+### Get current user profile
+GET {{apiUrl}}/auth/profile
+Authorization: Bearer {{token}}
+
+
+### Get all recipes
+GET {{apiUrl}}/recipes
+
+### Get my recipes
+GET {{apiUrl}}/recipes/mine
+Authorization: Bearer {{token}}
+
+### Get saved recipe IDs
+GET {{apiUrl}}/recipes/saved
+Authorization: Bearer {{token}}
+
+### Get saved recipe list
+GET {{apiUrl}}/recipes/saved/list
+Authorization: Bearer {{token}}
+
+### Get recipe image or uploaded document by recipe ID
+GET {{apiUrl}}/recipes/{{recipeId}}/image
+
+### Get one recipe by ID
+GET {{apiUrl}}/recipes/{{recipeId}}
+
+### Create recipe without file
+POST {{apiUrl}}/recipes
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=RecipeBoundary
+
+--RecipeBoundary
+Content-Disposition: form-data; name="title"
+
+Paneer Wrap
+--RecipeBoundary
+Content-Disposition: form-data; name="description"
+
+Quick weeknight paneer wrap.
+--RecipeBoundary
+Content-Disposition: form-data; name="ingredients"
+
+Paneer, roti, onion, capsicum, chutney
+--RecipeBoundary
+Content-Disposition: form-data; name="instruction"
+
+Saute filling, warm roti, add chutney, and roll.
+--RecipeBoundary
+Content-Disposition: form-data; name="cooking_time"
+
+20
+--RecipeBoundary
+Content-Disposition: form-data; name="category"
+
+Dinner
+--RecipeBoundary--
+
+### Create recipe with file
+# Replace ./sample-recipe-image.jpg with a local image, PDF, or Word file from 1 MB to 5 MB.
+POST {{apiUrl}}/recipes
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=RecipeFileBoundary
+
+--RecipeFileBoundary
+Content-Disposition: form-data; name="title"
+
+Masala Dosa
+--RecipeFileBoundary
+Content-Disposition: form-data; name="description"
+
+Crispy dosa with potato masala.
+--RecipeFileBoundary
+Content-Disposition: form-data; name="ingredients"
+
+Dosa batter, potato, onion, mustard seeds, curry leaves
+--RecipeFileBoundary
+Content-Disposition: form-data; name="instruction"
+
+Prepare potato masala, spread batter, cook until crisp, and serve.
+--RecipeFileBoundary
+Content-Disposition: form-data; name="cooking_time"
+
+45
+--RecipeFileBoundary
+Content-Disposition: form-data; name="category"
+
+Breakfast
+--RecipeFileBoundary
+Content-Disposition: form-data; name="image"; filename="sample-recipe-image.jpg"
+Content-Type: image/jpeg
+
+< ./sample-recipe-image.jpg
+--RecipeFileBoundary--
+
+### Update recipe without changing file
+PUT {{apiUrl}}/recipes/{{recipeId}}
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=RecipeUpdateBoundary
+
+--RecipeUpdateBoundary
+Content-Disposition: form-data; name="title"
+
+Updated Paneer Wrap
+--RecipeUpdateBoundary
+Content-Disposition: form-data; name="description"
+
+Updated description.
+--RecipeUpdateBoundary
+Content-Disposition: form-data; name="ingredients"
+
+Paneer, roti, onion, capsicum, chutney, cheese
+--RecipeUpdateBoundary
+Content-Disposition: form-data; name="instruction"
+
+Saute filling, warm roti, add chutney and cheese, then roll.
+--RecipeUpdateBoundary
+Content-Disposition: form-data; name="cooking_time"
+
+25
+--RecipeUpdateBoundary
+Content-Disposition: form-data; name="category"
+
+Dinner
+--RecipeUpdateBoundary--
+
+### Update recipe with new file
+# Replace ./sample-recipe-image.jpg with a local image, PDF, or Word file from 1 MB to 5 MB.
+PUT {{apiUrl}}/recipes/{{recipeId}}
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=RecipeUpdateFileBoundary
+
+--RecipeUpdateFileBoundary
+Content-Disposition: form-data; name="title"
+
+Updated Masala Dosa
+--RecipeUpdateFileBoundary
+Content-Disposition: form-data; name="description"
+
+Updated dosa recipe.
+--RecipeUpdateFileBoundary
+Content-Disposition: form-data; name="ingredients"
+
+Dosa batter, potato, onion, mustard seeds, curry leaves, chutney
+--RecipeUpdateFileBoundary
+Content-Disposition: form-data; name="instruction"
+
+Prepare masala, cook dosa crisp, fill, fold, and serve hot.
+--RecipeUpdateFileBoundary
+Content-Disposition: form-data; name="cooking_time"
+
+50
+--RecipeUpdateFileBoundary
+Content-Disposition: form-data; name="category"
+
+Breakfast
+--RecipeUpdateFileBoundary
+Content-Disposition: form-data; name="image"; filename="sample-recipe-image.jpg"
+Content-Type: image/jpeg
+
+< ./sample-recipe-image.jpg
+--RecipeUpdateFileBoundary--
+
+### Save recipe
+POST {{apiUrl}}/recipes/{{recipeId}}/save
+Authorization: Bearer {{token}}
+
+### Unsave recipe
+DELETE {{apiUrl}}/recipes/{{recipeId}}/save
+Authorization: Bearer {{token}}
+
+### Delete recipe
+DELETE {{apiUrl}}/recipes/{{recipeId}}
+Authorization: Bearer {{token}}
