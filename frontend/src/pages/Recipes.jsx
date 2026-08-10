@@ -220,27 +220,6 @@ export default function Recipes() {
               onChange={(event) => setSearch(event.target.value)}
             />
           </label>
-          {user && <Link className="button" to="/recipes/new">Add Dish</Link>}
-        </div>
-      </div>
-
-      <div className="contribute-panel">
-        <div>
-          <p className="recipes-kicker">Share a dish</p>
-          <h2>Add your own recipe to the collection</h2>
-          <p>
-            Upload photos, write ingredients and instructions, and keep your homemade dishes in your account.
-          </p>
-        </div>
-        <div className="contribute-actions">
-          {user ? (
-            <Link className="button" to="/recipes/new">Add Your Dish</Link>
-          ) : (
-            <>
-              <Link className="button" to="/login">Login to Add</Link>
-              <Link className="button secondary" to="/signup">Create Account</Link>
-            </>
-          )}
         </div>
       </div>
 
