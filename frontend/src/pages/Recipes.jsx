@@ -12,6 +12,8 @@ const mealColumns = [
   { name: "Juices", icon: "glass" },
   { name: "Dessert", icon: "cake" }
 ];
+const allRecipesTopic = { name: "All Recipes", icon: "all" };
+const recipeTopics = [allRecipesTopic, ...mealColumns];
 
 function MealIcon({ type }) {
   if (type === "sun") {
@@ -71,6 +73,14 @@ function MealIcon({ type }) {
     );
   }
 
+  if (type === "all") {
+    return (
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M4 5h6v6H4V5ZM14 5h6v6h-6V5ZM4 15h6v6H4v-6ZM14 15h6v6h-6v-6Z" />
+      </svg>
+    );
+  }
+
   return (
     <svg aria-hidden="true" viewBox="0 0 24 24">
       <path d="M6 8h12v10H6V8Z" />
@@ -106,7 +116,7 @@ export default function Recipes() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const mealParam = searchParams.get("meal");
-  const activeMeal = mealColumns.some((meal) => meal.name === mealParam) ? mealParam : "Breakfast";
+  const activeMeal = recipeTopics.some((meal) => meal.name === mealParam) ? mealParam : allRecipesTopic.name;
 
   useEffect(() => {
     async function loadRecipes() {
@@ -170,10 +180,8 @@ export default function Recipes() {
     );
     return groups;
   }, {});
-  const visibleMealRecipeCount = mealColumns.reduce(
-    (total, meal) => total + recipesByMeal[meal.name].length,
-    0
-  );
+  recipesByMeal[allRecipesTopic.name] = filteredRecipes;
+  const visibleMealRecipeCount = filteredRecipes.length;
   const activeRecipes = recipesByMeal[activeMeal] || [];
 
   return (
@@ -235,7 +243,7 @@ export default function Recipes() {
       {!loading && !error && recipes.length > 0 && (
         <>
         <div className="meal-topic-grid" aria-label="Recipe topics">
-          {mealColumns.map((meal) => (
+          {recipeTopics.map((meal) => (
             <button
               className={activeMeal === meal.name ? "meal-topic active" : "meal-topic"}
               key={meal.name}
