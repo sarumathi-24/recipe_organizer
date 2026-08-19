@@ -42,7 +42,7 @@ Recipe-Organizer-final-project/
 - Profile page
 - 404 page
 - Responsive UI
-- Search recipes on the home page
+- recipes on the home page
 
 ## Database Setup
 

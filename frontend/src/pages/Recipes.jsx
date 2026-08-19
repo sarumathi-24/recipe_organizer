@@ -196,7 +196,7 @@ export default function Recipes() {
             Search by name, category, or notes, then open the recipe details when a dish catches your eye.
           </p>
           <div className="recipes-hero-actions">
-            <Link className="button light-button" to="/">Main Page</Link>
+            <Link className="button light-button" to="/">Home</Link>
             {user ? (
               <Link className="button neon-button" to="/recipes/new">Add Your Dish</Link>
             ) : (
@@ -208,7 +208,7 @@ export default function Recipes() {
         <div className="recipes-stat-card">
           <span>Total Recipes</span>
           <strong>{recipes.length}</strong>
-          <span>Showing {visibleMealRecipeCount}</span>
+          
         </div>
       </div>
 
@@ -223,7 +223,7 @@ export default function Recipes() {
             <span>Search recipes</span>
             <input
               className="search"
-              placeholder="Search by title, category, or notes"
+              placeholder=""
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />

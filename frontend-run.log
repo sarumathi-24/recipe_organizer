@@ -1,0 +1,48 @@
+
+> recipe-organizer-frontend@1.0.0 dev
+> vite --host 127.0.0.1 --port 5173
+
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+  [32m[1mVITE[22m v5.4.21[39m  [2mready in [0m[1m720[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m5173[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[2m3:19:32 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:19:33 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:19:34 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:19:34 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:19:35 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:19:35 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:19:36 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:19:36 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:19:37 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/RecipeDetails.jsx[22m
+[2m3:19:37 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Profile.jsx[22m
+[2m3:19:38 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/SavedRecipes.jsx[22m
+[2m3:19:38 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/MyRecipes.jsx[22m
+[2m3:19:39 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RecipeForm.jsx[22m
+[2m3:19:39 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Recipes.jsx[22m
+[2m3:19:40 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Home.jsx[22m
+[2m3:19:41 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RecipeCard.jsx[22m
+[2m3:28:27 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Home.jsx[22m
+[2m3:28:47 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RecipeCard.jsx[22m
+[2m3:29:12 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Recipes.jsx[22m
+[2m3:29:42 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:29:53 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:30:04 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:30:20 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:30:32 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:34:24 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Home.jsx[22m
+[2m3:34:43 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/components/RecipeCard.jsx[22m
+[2m3:35:06 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Recipes.jsx[22m
+[2m3:35:25 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:35:37 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:37:13 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m3:37:47 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Recipes.jsx[22m
+[2m3:38:16 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/styles.css[22m
+[2m8:10:56 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Recipes.jsx[22m
+[2m8:11:02 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Recipes.jsx[22m
+[2m8:11:02 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Recipes.jsx[22m
+[2m8:31:13 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Recipes.jsx[22m
+[2m8:44:44 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Recipes.jsx[22m
+[2m8:44:44 pm[22m [36m[1m[vite][22m[39m [32mhmr update [39m[2m/src/pages/Recipes.jsx[22m

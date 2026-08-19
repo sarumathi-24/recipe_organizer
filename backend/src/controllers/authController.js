@@ -97,6 +97,8 @@ async function login(req, res) {
 }
 
 async function profile(req, res) {
+
+  
   try {
     const result = await pool.query(
       "SELECT id, name, email, is_admin, created_at FROM users WHERE id = $1",
