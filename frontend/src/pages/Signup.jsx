@@ -7,6 +7,7 @@ export default function Signup() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   function handleChange(event) {
     setForm({ ...form, [event.target.name]: event.target.value });
@@ -36,12 +37,18 @@ export default function Signup() {
 
   return (
     <section className="auth-page">
-      <form className="form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit} autoComplete="off">
         <h1>Create account</h1>
         {error && <p className="alert error">{error}</p>}
         <label>
           Name
-          <input name="name" value={form.name} onChange={handleChange} required />
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            autoComplete="off"
+            required
+          />
         </label>
         <label>
           Email
@@ -50,6 +57,7 @@ export default function Signup() {
             type="email"
             value={form.email}
             onChange={handleChange}
+            autoComplete="email"
             onInvalid={(event) => event.target.setCustomValidity("Enter email")}
             onInput={(event) => event.target.setCustomValidity("")}
             required
@@ -57,15 +65,26 @@ export default function Signup() {
         </label>
         <label>
           Password
-          <input
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-            onInvalid={(event) => event.target.setCustomValidity("Enter password")}
-            onInput={(event) => event.target.setCustomValidity("")}
-            required
-          />
+          <span className="password-field">
+            <input
+              name="password"
+              type={showPassword ? "text" : "password"}
+              value={form.password}
+              onChange={handleChange}
+              autoComplete="new-password"
+              onInvalid={(event) => event.target.setCustomValidity("Enter password")}
+              onInput={(event) => event.target.setCustomValidity("")}
+              required
+            />
+            <button
+              aria-label={showPassword ? "Hide password" : "Show password"}
+              className="password-toggle"
+              type="button"
+              onClick={() => setShowPassword((current) => !current)}
+            >
+              {showPassword ? "🙈" : "👁️"}
+            </button>
+          </span>
         </label>
         <button className="button">Signup</button>
         <p className="muted">Already have an account? <Link to="/login">Login</Link></p>
